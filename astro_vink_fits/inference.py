@@ -10,9 +10,9 @@ import torch
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 from astro_vink_fits.utils import get_device
-from model import load_model
-from data import FITSDataset
-from transforms import build_transforms
+from .model import load_model
+from .data import FITSDataset
+from .transforms import build_transforms
 
 
 def run_inference(
