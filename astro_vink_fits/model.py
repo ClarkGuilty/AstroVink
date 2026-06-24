@@ -111,7 +111,12 @@ def load_model(weights_path, device, num_channels=None):
     encoder = encoder.to(device)
     model = AstroVink(encoder).to(device)
 
+    state_dict = { #Added this to fix the names of the weight dictionary.
+     k.replace("encoder.layer.", "encoder.model.layer."): v
+     for k, v in checkpoint["model_state_dict"].items()
+    }
+
     strict = (num_channels is None) or (num_channels == checkpoint.get("num_channels", 4))
-    model.load_state_dict(checkpoint["model_state_dict"], strict=strict)
+    model.load_state_dict(state_dict, strict=strict)
     model.eval()
     return model, checkpoint
