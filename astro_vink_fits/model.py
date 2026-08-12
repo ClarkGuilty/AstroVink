@@ -112,6 +112,16 @@ def load_model(weights_path, device, num_channels=None):
     model = AstroVink(encoder).to(device)
 
     strict = (num_channels is None) or (num_channels == checkpoint.get("num_channels", 4))
-    model.load_state_dict(checkpoint["model_state_dict"], strict=strict)
+    state_dict = checkpoint["model_state_dict"]
+    # Remap keys: checkpoint uses raw ViT keys (encoder.layer.X...)
+    # but AutoModel wraps them as encoder.model.layer.X...
+    remapped = {}
+    for k, v in state_dict.items():
+        if k.startswith("encoder.layer."):
+            new_k = k.replace("encoder.", "encoder.model.", 1)
+            remapped[new_k] = v
+        else:
+            remapped[k] = v
+    model.load_state_dict(remapped, strict=strict)
     model.eval()
     return model, checkpoint
